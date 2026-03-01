@@ -1,0 +1,59 @@
+@page "/attendance"
+@using MyBlazorApp.Models
+@inject MyBlazorApp.Services.RegistrationService RegistrationService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Attendance - EventEase</PageTitle>
+
+<h2>Attendance Tracker</h2>
+
+@if (registrations == null)
+{
+    <p>Loading...</p>
+}
+else if (!registrations.Any())
+{
+    <p>No registrations yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Registered At (UTC)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in registrationsWithEvent)
+            {
+                <tr>
+                    <td>@r.EventName</td>
+                    <td>@r.Registration.Name</td>
+                    <td>@r.Registration.Email</td>
+                    <td>@r.Registration.RegisteredAt.ToString("u")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Registration>? registrations;
+    private List<(Registration Registration, string EventName)> registrationsWithEvent = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        registrations = await RegistrationService.GetRegistrationsAsync();
+        if (registrations != null)
+        {
+            foreach (var r in registrations)
+            {
+                var ev = await MyBlazorApp.Services.EventDataService.GetEventByIdAsync(r.EventId);
+                registrationsWithEvent.Add((r, ev?.Name ?? $"Event {r.EventId}"));
+            }
+        }
+    }
+}

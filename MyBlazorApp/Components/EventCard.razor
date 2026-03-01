@@ -1,0 +1,90 @@
+@using MyBlazorApp.Models
+@using System.Globalization
+@using System.ComponentModel.DataAnnotations
+
+<div class="event-card">
+    <div class="card-header">
+        <h3>@(Event?.Name ?? "Untitled Event")</h3>
+        <span class="category-badge">@(string.IsNullOrWhiteSpace(Event?.Category) ? "General" : Event.Category)</span>
+    </div>
+    
+    <div class="card-body">
+        <div class="event-detail">
+            <strong>📅 Date:</strong>
+            <p>@(SafeFormatDate(Event))</p>
+        </div>
+        
+        <div class="event-detail">
+            <strong>📍 Location:</strong>
+            <p>@(string.IsNullOrWhiteSpace(Event?.Location) ? "Location TBA" : Event.Location)</p>
+        </div>
+        
+        <div class="event-detail">
+            <strong>Description:</strong>
+            <p>@(string.IsNullOrWhiteSpace(Event?.Description) ? "No description provided." : Event.Description)</p>
+        </div>
+        
+        <div class="event-detail capacity">
+            <strong>Attendees:</strong>
+            <p>@(Event != null ? $"{Event.RegisteredAttendees} / {Event.Capacity} spots" : "0 / 0 spots")</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: @GetCapacityPercentage()%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <button class="btn-register" @onclick="OnRegisterClick" disabled="@(Event == null || IsEventFull() || !IsValidEvent())">
+            @(Event == null ? "Unavailable" : (IsEventFull() ? "Event Full" : "Register Now"))
+        </button>
+        <NavLink href="@GetEventDetailUrl()" class="btn-details">View Details</NavLink>
+        <NavLink href="@($"/register/{Event?.Id ?? 0}")" class="btn-register-link">Register (Form)</NavLink>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Event Event { get; set; } = new();
+    
+    [Parameter]
+    public EventCallback<Event> OnRegister { get; set; }
+    
+    private async Task OnRegisterClick()
+    {
+        if (Event != null && !IsEventFull() && IsValidEvent())
+        {
+            await OnRegister.InvokeAsync(Event);
+        }
+    }
+    
+    private bool IsEventFull() => Event.RegisteredAttendees >= Event.Capacity;
+    
+    private string GetCapacityPercentage()
+    {
+        if (Event == null || Event.Capacity <= 0) return "0";
+        var pct = (int)Math.Clamp((Event.RegisteredAttendees * 100) / (double)Event.Capacity, 0, 100);
+        return pct.ToString();
+    }
+    
+    private string GetEventDetailUrl() => $"/event/{Event.Id}";
+
+    private bool IsValidEvent()
+    {
+        var results = new List<ValidationResult>();
+        var ctx = new ValidationContext(Event);
+        return Validator.TryValidateObject(Event, ctx, results, validateAllProperties: true);
+    }
+
+    private string SafeFormatDate(Event? e)
+    {
+        if (e == null) return "TBA";
+        try
+        {
+            return e.Date.ToString("MMMM dd, yyyy - h:mm tt", CultureInfo.CurrentCulture);
+        }
+        catch
+        {
+            return e.Date.ToShortDateString();
+        }
+    }
+}

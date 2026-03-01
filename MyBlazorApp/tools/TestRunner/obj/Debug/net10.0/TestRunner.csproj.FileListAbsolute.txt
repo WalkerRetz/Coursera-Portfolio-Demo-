@@ -1,0 +1,15 @@
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\bin\Debug\net10.0\TestRunner.exe
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\bin\Debug\net10.0\TestRunner.deps.json
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\bin\Debug\net10.0\TestRunner.runtimeconfig.json
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\bin\Debug\net10.0\TestRunner.dll
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\bin\Debug\net10.0\TestRunner.pdb
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.AssemblyInfoInputs.cache
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.AssemblyInfo.cs
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.csproj.CoreCompileInputs.cache
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.sourcelink.json
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.dll
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\refint\TestRunner.dll
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.pdb
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\TestRunner.genruntimeconfig.cache
+c:\Users\10126\aa Git Folder\MyBlazorApp\tools\TestRunner\obj\Debug\net10.0\ref\TestRunner.dll

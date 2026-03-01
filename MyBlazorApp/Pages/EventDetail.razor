@@ -1,0 +1,125 @@
+@page "/event/{EventId:int}"
+@using MyBlazorApp.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>Event Details - EventEase</PageTitle>
+
+<div class="event-detail-container">
+    @if (isLoading)
+    {
+        <p>Loading event details...</p>
+    }
+    else if (isNotFound)
+    {
+        <div class="alert alert-danger">
+            <h3>Event Not Found</h3>
+            <p>The event you're looking for does not exist or may have been removed.</p>
+            <button class="btn" @onclick="GoBack">Back to Events</button>
+        </div>
+    }
+    else
+    {
+        <div class="detail-header">
+            <button @onclick="GoBack" class="btn-back">← Back to Events</button>
+            <span class="event-category">@currentEvent.Category</span>
+        </div>
+        
+        <div class="detail-content">
+            <div class="detail-main">
+                <h1>@currentEvent.Name</h1>
+                
+                <div class="detail-info-grid">
+                    <div class="info-box">
+                        <h3>📅 Date & Time</h3>
+                        <p>@currentEvent.Date.ToString("dddd, MMMM dd, yyyy")</p>
+                        <p>@currentEvent.Date.ToString("h:mm tt")</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>📍 Location</h3>
+                        <p>@currentEvent.Location</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>👥 Attendance</h3>
+                        <p>@currentEvent.RegisteredAttendees / @currentEvent.Capacity registered</p>
+                        <div class="progress-bar-large">
+                            <div class="progress-fill" style="width: @GetCapacityPercentage()%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description-section">
+                    <h2>About This Event</h2>
+                    <p>@currentEvent.Description</p>
+                </div>
+                
+                <div class="registration-section">
+                    <h2>Registration</h2>
+                    @if (IsEventFull())
+                    {
+                        <div class="alert alert-warning">
+                            <strong>This event is fully booked.</strong> Join the waitlist or check back for similar events.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <strong>@(currentEvent.Capacity - currentEvent.RegisteredAttendees) spots remaining</strong>
+                        </div>
+                        <button class="btn-register-large">Register Now</button>
+                    }
+                </div>
+            </div>
+            
+            <div class="detail-sidebar">
+                <div class="info-card">
+                    <h3>Event Details</h3>
+                    <ul>
+                        <li><strong>Event Type:</strong> @currentEvent.Category</li>
+                        <li><strong>Capacity:</strong> @currentEvent.Capacity attendees</li>
+                        <li><strong>Status:</strong> @(IsEventFull() ? "Full" : "Available")</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Need Help?</h3>
+                    <p>For questions about this event, please contact us at events@eventease.com or call (555) 123-4567.</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int EventId { get; set; }
+    
+    private Event? currentEvent;
+    private bool isLoading = true;
+    private bool isNotFound = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        currentEvent = await MyBlazorApp.Services.EventDataService.GetEventByIdAsync(EventId);
+        isLoading = false;
+        isNotFound = currentEvent == null;
+    }
+    
+    // Using shared data service to avoid duplicating the sample events
+    
+    private bool IsEventFull() => currentEvent != null && currentEvent.RegisteredAttendees >= currentEvent.Capacity;
+    
+    private string GetCapacityPercentage()
+    {
+        if (currentEvent == null || currentEvent.Capacity <= 0) return "0";
+        var pct = (int)Math.Clamp((currentEvent.RegisteredAttendees * 100) / (double)currentEvent.Capacity, 0, 100);
+        return pct.ToString();
+    }
+    
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+}

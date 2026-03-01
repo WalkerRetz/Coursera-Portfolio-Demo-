@@ -1,0 +1,107 @@
+@page "/register/{EventId:int?}"
+@using MyBlazorApp.Models
+@inject MyBlazorApp.Services.RegistrationService RegistrationService
+@inject MyBlazorApp.Services.UserSessionService UserSessionService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Register - EventEase</PageTitle>
+
+@if (eventItem == null && !loading && (EventId != null))
+{
+    <div class="alert alert-danger">Event not found.</div>
+}
+
+<div class="register-container">
+    <h2>Register for @((eventItem?.Name) ?? "Event")</h2>
+
+    <EditForm Model="registration" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <div class="form-group">
+            <label>Name</label>
+            <InputText @bind-Value="registration.Name" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <InputText @bind-Value="registration.Email" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Event</label>
+            <InputText Value="@(eventItem?.Name ?? "")" Disabled="true" class="form-control" />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Register</button>
+        <button class="btn btn-secondary" type="button" @onclick="Cancel">Cancel</button>
+    </EditForm>
+
+    @if (success)
+    {
+        <div class="alert alert-success">Registration successful. Thank you!</div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int? EventId { get; set; }
+
+    private Registration registration = new Registration();
+    private MyBlazorApp.Models.Event? eventItem;
+    private bool success = false;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EventId != null)
+        {
+            eventItem = await MyBlazorApp.Services.EventDataService.GetEventByIdAsync(EventId.Value);
+            registration.EventId = EventId.Value;
+        }
+        loading = false;
+    }
+
+    private string? errorMessage;
+    private async Task HandleValidSubmit()
+    {
+        if (eventItem == null)
+        {
+            return;
+        }
+
+        var reg = new Registration
+        {
+            Name = registration.Name,
+            Email = registration.Email,
+            EventId = registration.EventId
+        };
+
+        var (ok, error) = await RegistrationService.RegisterAsync(reg);
+        if (ok)
+        {
+            await UserSessionService.SetUserAsync(reg.Name, reg.Email);
+            success = true;
+            errorMessage = null;
+            // Navigate to attendance page
+            await Task.Delay(300);
+            NavigationManager.NavigateTo($"/attendance");
+        }
+        else
+        {
+            // show validation or capacity issue
+            errorMessage = error ?? "Registration failed.";
+            success = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+}
